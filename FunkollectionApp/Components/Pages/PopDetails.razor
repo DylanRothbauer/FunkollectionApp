@@ -1,0 +1,116 @@
+﻿@page "/PopDetails/{popID:int}"
+@rendermode InteractiveServer
+@inject IPopService PopService
+@inject NavigationManager Navigation
+@inject IDialogService DialogService
+
+@using FunkollectionApp.Models
+@using FunkollectionApp.Services
+@using MudBlazor
+
+<MudDialogProvider FullWidth="true"
+                   MaxWidth="MaxWidth.ExtraSmall"
+                   CloseButton="true"
+                   BackdropClick="false"
+                   NoHeader="false"
+                   Position="DialogPosition.Center"
+                   CloseOnEscapeKey="true" />
+
+<h3>PopDetails</h3>
+
+@if (pop == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderAvatar>
+                <!-- Maybe in future, add Pop! image with category like a pop image -->
+                <!-- <MudAvatar Color="Color.Secondary">@pop.Number</MudAvatar> -->
+            </CardHeaderAvatar>
+            <CardHeaderContent>
+                <MudText Typo="Typo.body1" Class="pop-card-header">@pop.Title</MudText>
+                <!-- <MudText Typo="Typo.body2">Peninsula in Europe</MudText> -->
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <!-- <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" /> -->
+                <MudAvatar Class="funkollection-secondary">@pop.Number</MudAvatar>
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardMedia Image="@GetImageUrl()" Class="pop-details-img" />
+
+        <MudCardContent>
+            <MudText Typo="Typo.body2" Class="pop-card-text">@pop.Name</MudText>
+        </MudCardContent>
+        <MudCardActions Class="pop-card-actions">
+            <MudFab Class="funkollection-secondary" StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small" @onclick="NavigateToEditPop" />
+            <MudToggleIconButton @bind-Toggled="@favorite"
+                                 Icon="@Icons.Material.Filled.FavoriteBorder" Color="@Color.Secondary" title=@(favorite ? "Favorite" : "Not Favorite")
+                                 ToggledIcon="@Icons.Material.Filled.Favorite" ToggledColor="@Color.Secondary" />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" @onclick="OnDeleteClicked"></MudIconButton>
+        </MudCardActions>
+    </MudCard>
+
+    <MudMessageBox @ref="_mudMessageBox" Title="Warning" CancelText="Cancel">
+        <MessageContent>
+            Deleting can <b><i>not</i></b> be undone!
+        </MessageContent>
+        <YesButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
+        </YesButton>
+    </MudMessageBox>
+
+    <MudButton Variant="Variant.Filled" Class="funkollection-secondary" @onclick="() => NavigateToCollection()">Back</MudButton>
+}
+
+@code {
+    [Parameter]
+    public int popID { get; set; }
+
+    private Pop pop;
+    public bool favorite { get; set; }
+    private MudMessageBox _mudMessageBox;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Replace with your API or data retrieval logic
+        pop = await PopService.GetEntityByIdAsync(popID);
+    }
+
+    private void NavigateToCollection()
+    {
+        Navigation.NavigateTo("/Pops");
+    }
+
+    private async Task OnDeleteClicked()
+    {
+        bool? result = await _mudMessageBox.ShowAsync();
+
+        if (result == true)
+        {
+            await PopService.DeleteEntityAsync(popID);
+            NavigateToCollection();
+        }
+    }
+
+    private void NavigateToEditPop()
+    {
+        Navigation.NavigateTo($"/EditPop/{popID}");
+    }
+
+    private string GetImageUrl()
+    {
+        // Check if ImageData is null or empty
+        if (pop?.ImageData != null && pop.ImageData.Length > 0)
+        {
+            var base64 = Convert.ToBase64String(pop.ImageData);
+            return $"data:image/png;base64,{base64}";
+        }
+
+        return "/images/image-placeholder.jpg"; // placeholder
+    }
+
+
+}

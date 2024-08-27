@@ -1,0 +1,150 @@
+﻿@page "/Pops"
+@rendermode InteractiveServer
+@inject IPopService PopService
+@inject NavigationManager Navigation
+
+@using System.Threading.Tasks
+@using System.Collections.Generic
+@using FunkollectionApp.Models
+@using FunkollectionApp.Services
+@using MudBlazor
+
+@if (pops == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (pops.Any())
+{
+    <MudGrid Justify="Justify.Center">
+        <MudItem xs="12" class="d-flex justify-center">
+            <MudButton Variant="Variant.Filled" 
+                       StartIcon="@Icons.Material.Filled.Add" 
+                       Class="funkollection-secondary"
+                       FullWidth="true"
+                       @onclick="() => NavigateToNewPop()">New</MudButton>
+        </MudItem>
+    </MudGrid>
+    <MudTable Items="@PagedPops" Hover="true" Filter="FilterFunc" @bind-SelectedItem="selectedItem" Style="margin-top: 24px" id="scroll-section">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">My Pops</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Number</MudTh>
+            <MudTh>Title</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Category</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Number">@context.Number</MudTd>
+            <MudTd DataLabel="Title">@context.Title</MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Category">@context.Category</MudTd>
+            <MudTd>
+                <MudStack Row Class="d-flex justify-end">
+                    <MudButton Class="funkollection-secondary" Size="Size.Small" Variant="Variant.Filled"  @onclick="() => NavigateToDetails(context.Id)">
+                        Details
+                    </MudButton>
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+
+    <MudScrollToTop>
+        <MudFab Class="funkollection-primary" StartIcon="@Icons.Material.Filled.ArrowCircleUp" />
+    </MudScrollToTop>
+}
+else
+{
+    <p>No items found.</p>
+}
+
+@code {
+    private IEnumerable<Pop> pops;
+    private string searchString = string.Empty;
+    private Pop selectedItem;
+    private IEnumerable<Pop> filteredPops;
+    private IEnumerable<Pop> pagedPops;
+
+    public int PageSize { get; set; } = 10; // Number of items per page
+
+    protected override async Task OnInitializedAsync()
+    {
+        pops = await PopService.GetAllEntitiesAsync();
+        filteredPops = pops;
+        UpdatePagedPops();
+    }
+
+    private IEnumerable<Pop> FilteredPops
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+            {
+                return pops;
+            }
+
+            var lowerCaseSearchString = searchString.ToLower();
+
+            return pops.Where(p =>
+                (p.Name != null && p.Name.ToLower().Contains(lowerCaseSearchString)) ||
+                (p.Title != null && p.Title.ToLower().Contains(lowerCaseSearchString)) ||
+                (p.Category != null && p.Category.ToLower().Contains(lowerCaseSearchString)) ||
+                (p.Number != null && p.Number.ToString().Contains(lowerCaseSearchString))
+            );
+        }
+    }
+
+    private IEnumerable<Pop> PagedPops
+    {
+        get
+        {
+            var skip = (CurrentPage - 1) * PageSize;
+            return FilteredPops.Skip(skip).Take(PageSize);
+        }
+    }
+
+    private void UpdatePagedPops()
+    {
+        filteredPops = FilteredPops;
+        pagedPops = PagedPops;
+    }
+
+    private int CurrentPage { get; set; } = 1;
+
+    private void OnPageChanged(int page)
+    {
+        CurrentPage = page;
+        UpdatePagedPops();
+    }
+
+    private bool FilterFunc(Pop item)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+        {
+            return true;
+        }
+
+        var lowerCaseSearchString = searchString.ToLower();
+        return (item.Name != null && item.Name.ToLower().Contains(lowerCaseSearchString)) ||
+               (item.Title != null && item.Title.ToLower().Contains(lowerCaseSearchString)) ||
+               (item.Category != null && item.Category.ToLower().Contains(lowerCaseSearchString)) ||
+               (item.Number != null && item.Number.ToString().Contains(lowerCaseSearchString));
+    }
+
+    private void NavigateToDetails(int popID)
+    {
+        // Pop Details page
+        Navigation.NavigateTo($"/PopDetails/{popID}");
+    }
+
+    private void NavigateToNewPop()
+    {
+        // Create Pop page
+        Navigation.NavigateTo($"/CreatePop");
+    }
+}

@@ -1,0 +1,128 @@
+﻿@page "/EditPop/{popID:int}"
+@rendermode InteractiveServer
+@inject IPopService PopService
+@inject NavigationManager Navigation
+
+@using FunkollectionApp.Models
+@using FunkollectionApp.Services
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+
+<MudThemeProvider Theme="MyFormTheme" />
+
+<h3>Edit Pop</h3>
+
+@if (pop == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="@pop" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <MudGrid>
+            <MudItem xs="12" sm="7">
+                <MudCard>
+                    <MudCardContent>
+                        <!-- Display current or selected image -->
+                        <img src="@GetImageUrl()" alt="Current Image" style="max-width: 100%; height: auto;" />
+
+                        <!-- Image Upload -->
+                        <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+                            <ActivatorContent>
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload">
+                                    Upload Image
+                                </MudButton>
+                            </ActivatorContent>
+                        </MudFileUpload>
+
+                        <MudTextField Label="Number" @bind-Value="pop.Number" For="@(() => pop.Number)" HelperText="Enter the Pop number" Required="true" />
+                        <MudTextField Label="Title" @bind-Value="pop.Title" For="@(() => pop.Title)" HelperText="Enter the Pop title" Required="true" Class="mt-3" />
+                        <MudTextField Label="Name" @bind-Value="pop.Name" For="@(() => pop.Name)" HelperText="Enter the Pop name" Required="true" Class="mt-3" />
+                        <MudTextField Label="Category" @bind-Value="pop.Category" For="@(() => pop.Category)" HelperText="Enter the Pop category" Required="false" Class="mt-3" />
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Class="ml-auto funkollection-secondary">Save</MudButton>
+                        <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Error" Class="ml-auto" @onclick="() => NavigateToPops()">Cancel</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int popID { get; set; }
+
+    private Pop pop;
+    private IList<IBrowserFile> _files = new List<IBrowserFile>();
+    private byte[] temporaryImageData; // Temporary storage for the uploaded image data
+
+    protected override async Task OnInitializedAsync()
+    {
+        pop = await PopService.GetEntityByIdAsync(popID);
+    }
+
+    private async Task OnValidSubmit()
+    {
+        // Save the uploaded file if there is one
+        if (temporaryImageData != null)
+        {
+            pop.ImageData = temporaryImageData; // Update pop's image data with the new image
+        }
+
+        await PopService.UpdateEntityAsync(pop);
+        NavigateToPops();
+    }
+
+    private void NavigateToPops()
+    {
+        Navigation.NavigateTo($"/PopDetails/{popID}", forceLoad: true);
+    }
+
+    private async void UploadFiles(IBrowserFile file)
+    {
+        _files.Clear(); // Clear previous files
+        _files.Add(file); // Add the new file
+
+        using (var stream = new MemoryStream())
+        {
+            await file.OpenReadStream().CopyToAsync(stream);
+            temporaryImageData = stream.ToArray(); // Store the uploaded file's data
+        }
+
+        // Trigger a UI update to show the newly uploaded image
+        StateHasChanged();
+    }
+
+    private string GetImageUrl()
+    {
+        // Check if there's a new image being uploaded
+        if (temporaryImageData != null && temporaryImageData.Length > 0)
+        {
+            var base64 = Convert.ToBase64String(temporaryImageData);
+            return $"data:image/png;base64,{base64}";
+        }
+
+        // Fallback to pop's existing image
+        if (pop?.ImageData != null && pop.ImageData.Length > 0)
+        {
+            var base64 = Convert.ToBase64String(pop.ImageData);
+            return $"data:image/png;base64,{base64}";
+        }
+
+        // Use placeholder if no image is available
+        return "/images/image-placeholder.jpg";
+    }
+
+    MudTheme MyFormTheme = new MudTheme()
+        {
+            PaletteLight = new PaletteLight()
+            {
+                Primary = "#086a2e",
+                Secondary = "#8abf52",
+            },
+        };
+}
