@@ -65,6 +65,20 @@
 
     private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticationState = await AuthenticationStateTask;
+
+        if (authenticationState?.User?.Identity is not null && authenticationState.User.Identity.IsAuthenticated)
+        {
+            // User is already authenticated, redirect them to the home page or a dashboard
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
     public async Task RegisterUser(EditContext editContext)
     {
         var user = CreateUser();

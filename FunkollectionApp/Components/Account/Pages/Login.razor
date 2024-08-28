@@ -9,6 +9,7 @@
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject NavigationManager Navigation
 
 <PageTitle>Log in</PageTitle>
 
@@ -76,8 +77,19 @@
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
+        var authenticationState = await AuthenticationStateTask;
+
+        if (authenticationState?.User?.Identity is not null && authenticationState.User.Identity.IsAuthenticated)
+        {
+            // User is already authenticated, redirect them to the home page or a dashboard
+            Navigation.NavigateTo("/");
+        }
+
         if (HttpMethods.IsGet(HttpContext.Request.Method))
         {
             // Clear the existing external cookie to ensure a clean login process

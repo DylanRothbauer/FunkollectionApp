@@ -88,3 +88,9 @@ h1:focus {
 /*z-index: 10 !important;*/ /* Ensures it's above other content if overlapping occurs */
 /*width: 100% !important;
 }*/
+
+.funko-logo {
+    vertical-align: middle;
+    top: -60px;
+    left: -120px
+}

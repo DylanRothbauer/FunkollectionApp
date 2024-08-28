@@ -1,4 +1,5 @@
-﻿
+﻿@using FunkollectionApp.Components.Pages
+
 @rendermode InteractiveServer
 
 @inject NavigationManager NavigationManager
@@ -34,8 +35,8 @@
                     
                 </Authorized>
                 <NotAuthorized>
-                    <MudNavLink Href="Account/Register">Register</MudNavLink>
-                    <MudNavLink Href="Account/Login">Login</MudNavLink>
+                    @*Redirect to Login page*@
+                    <RedirectToLogin />
                 </NotAuthorized>
             </AuthorizeView>
             
@@ -70,5 +71,5 @@
     {
         _open = !_open;
     }
-}
 
+}
