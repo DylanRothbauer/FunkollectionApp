@@ -89,7 +89,7 @@ h1:focus {
 /*width: 100% !important;
 }*/
 
-.funko-logo {
+/*.funko-logo {
     vertical-align: middle;
     top: -60px;
     left: -120px
@@ -106,4 +106,45 @@ h1:focus {
     color: white;
     font-family: cursive;
     text-align: center;
+}*/
+
+.funko-logo {
+    position: absolute;
+    vertical-align: middle;
+    width: 100%; /* Make it responsive */
+    max-width: 400px; /* Limit the size for larger screens */
+    top: 20%; /* Use percentage for responsiveness */
+    left: 30%;
+    transform: translateX(-50%); /* Center horizontally */
 }
+
+.category-box {
+    position: absolute;
+    width: 50%; /* Make it responsive */
+    max-width: 130px; /* Limit the size for larger screens */
+    height: 20px;
+    background: red;
+    border-radius: 40px;
+    top: 42%; /* Use percentage for responsiveness */
+    left: 30%;
+    transform: translateX(-50%); /* Center horizontally */
+    color: white;
+    font-family: cursive;
+    text-align: center;
+}
+
+@media only screen and (max-width: 600px) {
+    .funko-logo {
+        max-width: 235px;
+        top: 17%;
+        left: 20%;
+    }
+
+    .category-box {
+        max-width: 100px;
+        top: 30%;
+        left: 21%;
+    }
+}
+
+

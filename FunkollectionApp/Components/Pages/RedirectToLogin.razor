@@ -13,8 +13,9 @@
         {
             var currentUrl = Navigation.ToBaseRelativePath(Navigation.Uri);
 
-            // Check if we are already on the login page to prevent a loop
-            if (!currentUrl.Contains("Account/Login", StringComparison.OrdinalIgnoreCase))
+            // Check if we are already on the login or register page to prevent a loop
+            if (!currentUrl.Contains("Account/Login", StringComparison.OrdinalIgnoreCase) &&
+                !currentUrl.Contains("Account/Register", StringComparison.OrdinalIgnoreCase))
             {
                 var returnUrl = Uri.EscapeDataString(currentUrl);
                 if (string.IsNullOrWhiteSpace(returnUrl))
@@ -26,7 +27,7 @@
                     Navigation.NavigateTo($"Account/Login?returnUrl={returnUrl}", true);
                 }
             }
-            // If already on the login page, do nothing to avoid loop
+            // If already on the login or register page, do nothing to avoid loop
         }
     }
 }
