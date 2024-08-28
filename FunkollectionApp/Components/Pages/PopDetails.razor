@@ -30,9 +30,15 @@ else
                 <!-- Maybe in future, add Pop! image with category like a pop image -->
                 <!-- <MudAvatar Color="Color.Secondary">@pop.Number</MudAvatar> -->
                 <div style="position: relative">
-                    <MudImage Src="images/funkoLogo.png" Alt="Funko Logo" Width="400" Style="position:absolute" Class="funko-logo"/>
+                    <MudImage Src="images/funkoLogo.png" Alt="Funko Logo" Width="400" Style="position:absolute" Class="funko-logo" />
                 </div>
-                
+                @if (@pop.Category != null)
+                {
+                    <div class="category-box">
+                        @pop.Category
+                    </div>
+                }
+
             </CardHeaderAvatar>
             <CardHeaderContent>
                 <MudText Typo="Typo.body1" Class="pop-card-header">@pop.Title</MudText>

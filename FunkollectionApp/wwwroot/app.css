@@ -94,3 +94,16 @@ h1:focus {
     top: -60px;
     left: -120px
 }
+
+.category-box {
+    position: absolute;
+    width: 130px;
+    height: 20px;
+    background: red;
+    border-radius: 40px;
+    top: 257px;
+    left: 352px;
+    color: white;
+    font-family: cursive;
+    text-align: center;
+}
