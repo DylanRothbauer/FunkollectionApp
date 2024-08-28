@@ -1,6 +1,30 @@
 ﻿@page "/"
-<PageTitle>Home</PageTitle>
+@if(loggedIn)
+{
+    <h1>Hello, world!</h1>
 
-<h1>Hello, world!</h1>
+    <h3>Welcome to your new app.</h3>
+}
+else
+{
+    <Welcome/>
+}
 
-Welcome to your new app.
+
+
+@code{
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    private bool loggedIn = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticationState = await AuthenticationStateTask;
+
+        if (authenticationState?.User?.Identity is not null && authenticationState.User.Identity.IsAuthenticated)
+        {
+            loggedIn = true;
+        }
+    }
+}
