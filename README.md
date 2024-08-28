@@ -1,6 +1,6 @@
-# FunkollectionApp 🎉
+# Funkollection 🎉
 
-FunkollectionApp is a web application designed to help Funko Pop collectors manage their collection. Users can add, view, and organize their Funko Pop figures in a personalized and user-friendly interface.
+Funkollection is a web application designed to help Funko Pop collectors manage their collection. Users can add, view, and organize their Funko Pop figures in a personalized and user-friendly interface.
 
 ## Features ✨
 
@@ -22,7 +22,7 @@ FunkollectionApp is a web application designed to help Funko Pop collectors mana
 Coming Soon
 
 ## Work in-progress 🚧
-FunkollectionApp is currently under active development. While many core features are implemented, there are still several enhancements and improvements planned:
+Funkollection is currently under active development. While many core features are implemented, there are still several enhancements and improvements planned:
 
 - **User Profiles**: Adding detailed user profiles with collection statistics and customization options.
 - **Mobile Optimization**: Further optimizing the mobile experience for better performance and usability.
