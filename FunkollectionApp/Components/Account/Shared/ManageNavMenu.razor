@@ -3,6 +3,8 @@
 
 @inject SignInManager<ApplicationUser> SignInManager
 
+<MudThemeProvider Theme="MyFormTheme" />
+
 <ul class="nav nav-pills flex-column">
     <li class="nav-item">
         <NavLink class="nav-link" href="Account/Manage" Match="NavLinkMatch.All">Profile</NavLink>
@@ -34,4 +36,13 @@
     {
         hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
     }
+
+    MudTheme MyFormTheme = new MudTheme()
+        {
+            PaletteLight = new PaletteLight()
+            {
+                Primary = "#086a2e",
+                Secondary = "#8abf52",
+            },
+        };
 }

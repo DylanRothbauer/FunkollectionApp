@@ -1,5 +1,19 @@
 ﻿@page "/"
-@if(loggedIn)
+@rendermode InteractiveServer
+
+<AuthorizeView>
+    <Authorized>
+        <h1>Hello, world!</h1>
+        <h3>Welcome to your new app.</h3>
+    </Authorized>
+
+    <NotAuthorized>
+        <Welcome />
+    </NotAuthorized>
+
+</AuthorizeView>
+
+@* @if(loggedIn)
 {
     <h1>Hello, world!</h1>
 
@@ -8,23 +22,23 @@
 else
 {
     <Welcome/>
-}
+} *@
 
 
 
 @code{
 
-    [CascadingParameter]
-    private Task<AuthenticationState> AuthenticationStateTask { get; set; }
-    private bool loggedIn = false;
+    // [CascadingParameter]
+    // private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    // private bool loggedIn = false;
 
-    protected override async Task OnInitializedAsync()
-    {
-        var authenticationState = await AuthenticationStateTask;
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var authenticationState = await AuthenticationStateTask;
 
-        if (authenticationState?.User?.Identity is not null && authenticationState.User.Identity.IsAuthenticated)
-        {
-            loggedIn = true;
-        }
-    }
+    //     if (authenticationState?.User?.Identity is not null && authenticationState.User.Identity.IsAuthenticated)
+    //     {
+    //         loggedIn = true;
+    //     }
+    // }
 }

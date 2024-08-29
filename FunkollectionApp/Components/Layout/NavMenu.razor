@@ -29,10 +29,15 @@
                         <form action="Account/Logout" method="post">
                             <AntiforgeryToken />
                             <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                            <button type="submit" class="nav-link">
+                            @* <button type="submit" class="nav-link">
                                 <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
-                            </button>
+                            </button> *@
+                            <MudButton StartIcon="@Icons.Material.Filled.ArrowBack" ButtonType="ButtonType.Submit">
+                                Logout
+                            </MudButton>
                         </form>
+                        
+                        
                     </MudNavLink>
                 </MudNavMenu>
             </MudDrawer>
@@ -57,8 +62,6 @@
                     <MudNavLink Href="Welcome">Welcome</MudNavLink>
                     <MudNavLink Href="Account/Login">Login</MudNavLink>
                     <MudNavLink Href="Account/Register">Register</MudNavLink>
-                    <MudNavLink>
-                    </MudNavLink>
                 </MudNavMenu>
             </MudDrawer>
         </MudLayout>
