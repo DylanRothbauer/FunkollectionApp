@@ -1,12 +1,15 @@
 ﻿@page "/PopDetails/{popID:int}"
 @rendermode InteractiveServer
 @inject IPopService PopService
+@inject IFavoriteService FavoriteService
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IDialogService DialogService
 
 @using FunkollectionApp.Models
 @using FunkollectionApp.Services
 @using MudBlazor
+@using System.Security.Claims
 
 <MudDialogProvider FullWidth="true"
                    MaxWidth="MaxWidth.ExtraSmall"
@@ -16,7 +19,7 @@
                    Position="DialogPosition.Center"
                    CloseOnEscapeKey="true" />
 
-<h3 style="margin-bottom: 1.5rem">PopDetails</h3>
+<h3 style="margin-bottom: 1.5rem">Pop Details</h3>
 
 @if (pop == null)
 {
@@ -27,8 +30,6 @@ else
     <MudCard>
         <MudCardHeader>
             <CardHeaderAvatar>
-                <!-- Maybe in future, add Pop! image with category like a pop image -->
-                <!-- <MudAvatar Color="Color.Secondary">@pop.Number</MudAvatar> -->
                 <div>
                     <MudImage Src="images/funkoLogo.png" Alt="Funko Logo" Width="400" Style="position:absolute" Class="funko-logo" />
                 </div>
@@ -38,29 +39,25 @@ else
                         @pop.Category
                     </div>
                 }
-
-
             </CardHeaderAvatar>
             <CardHeaderContent>
-                <MudText Typo="Typo.body1" Class="pop-card-header">@pop.Title</MudText>
-                <!-- <MudText Typo="Typo.body2">Peninsula in Europe</MudText> -->
+                <MudText Typo="Typo.h4" Class="pop-card-header">@pop.Title</MudText>
             </CardHeaderContent>
             <CardHeaderActions>
-                <!-- <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" /> -->
                 <MudAvatar Class="funkollection-secondary" Size="Size.Large">@pop.Number</MudAvatar>
             </CardHeaderActions>
         </MudCardHeader>
         <MudCardMedia Image="@GetImageUrl()" Class="pop-details-img" />
 
         <MudCardContent>
-            <MudText Typo="Typo.body2" Class="pop-card-text">@pop.Name</MudText>
+            <MudText Typo="Typo.h4" Class="pop-card-text">@pop.Name</MudText>
         </MudCardContent>
         <MudCardActions Class="pop-card-actions">
             <MudFab Class="funkollection-secondary" StartIcon="@Icons.Material.Filled.Edit" Size="Size.Large" @onclick="NavigateToEditPop" />
             <MudToggleIconButton @bind-Toggled="@favorite"
                                  Icon="@Icons.Material.Filled.FavoriteBorder" Color="@Color.Secondary" title=@(favorite ? "Favorite" : "Not Favorite")
                                  ToggledIcon="@Icons.Material.Filled.Favorite" ToggledColor="@Color.Secondary"
-                                 Size="Size.Large"/>
+                                 Size="Size.Large" @onclick="ToggleFavorite" />
             <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" @onclick="OnDeleteClicked" Size="Size.Large"></MudIconButton>
         </MudCardActions>
     </MudCard>
@@ -74,7 +71,7 @@ else
         </YesButton>
     </MudMessageBox>
 
-    <MudButton Variant="Variant.Filled" Class="funkollection-secondary" @onclick="() => NavigateToCollection()">Back</MudButton>
+    <MudButton Variant="Variant.Filled" Class="funkollection-secondary" @onclick="() => NavigateBack()">Back</MudButton>
 }
 
 @code {
@@ -82,18 +79,57 @@ else
     public int popID { get; set; }
 
     private Pop pop;
-    public bool favorite { get; set; }
+    private bool favorite = false;
     private MudMessageBox _mudMessageBox;
+    private string returnUrl;
 
     protected override async Task OnInitializedAsync()
     {
-        // Replace with your API or data retrieval logic
+        var uri = new Uri(Navigation.Uri);
+        var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        returnUrl = queryParams.TryGetValue("returnUrl", out var url) ? url.ToString() : string.Empty;
+
+        // Retrieve the Pop details
         pop = await PopService.GetEntityByIdAsync(popID);
+
+        // Check if the current pop is in the user's favorites
+        var userId = await GetCurrentUserId();
+        if (!string.IsNullOrEmpty(userId))
+        {
+            favorite = await FavoriteService.IsFavoriteAsync(userId, popID);
+        }
+    }
+
+    private async Task ToggleFavorite()
+    {
+        var userId = await GetCurrentUserId();
+        if (favorite)
+        {
+            await FavoriteService.RemoveFavoriteAsync(userId, popID);
+        }
+        else
+        {
+            await FavoriteService.AddFavoriteAsync(userId, popID);
+        }
+
+        favorite = !favorite; // Toggle the UI state
     }
 
     private void NavigateToCollection()
     {
         Navigation.NavigateTo("/Pops");
+    }
+
+    private void NavigateBack()
+    {
+        if (!string.IsNullOrEmpty(returnUrl))
+        {
+            Navigation.NavigateTo(returnUrl);
+        }
+        else
+        {
+            Navigation.NavigateTo("/Pops");
+        }
     }
 
     private async Task OnDeleteClicked()
@@ -114,15 +150,27 @@ else
 
     private string GetImageUrl()
     {
-        // Check if ImageData is null or empty
         if (pop?.ImageData != null && pop.ImageData.Length > 0)
         {
             var base64 = Convert.ToBase64String(pop.ImageData);
             return $"data:image/png;base64,{base64}";
         }
 
-        return "/images/image-placeholder.jpg"; // placeholder
+        return "/images/image-placeholder.jpg";
     }
 
+    private async Task<string> GetCurrentUserId()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
+
+        return string.Empty;
+    }
 
 }

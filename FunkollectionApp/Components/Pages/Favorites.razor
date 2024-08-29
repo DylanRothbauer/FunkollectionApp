@@ -1,44 +1,31 @@
-﻿@page "/Pops"
+﻿@page "/Favorites"
 @rendermode InteractiveServer
-@inject IPopService PopService
-@inject NavigationManager Navigation
-@inject AuthenticationStateProvider AuthenticationStateProvider
-
-@using System.Threading.Tasks
-@using System.Collections.Generic
 @using FunkollectionApp.Models
 @using FunkollectionApp.Services
-@using MudBlazor
-@using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
+@inject IFavoriteService FavoriteService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using MudBlazor
 
-
-@if (pops == null)
+@if (favorites == null)
 {
     <p><em>Loading...</em></p>
 }
-else if (pops.Any())
+else if (favorites.Any())
 {
-    <MudGrid Justify="Justify.Center">
-        <MudItem xs="12" class="d-flex justify-center">
-            <MudButton Variant="Variant.Filled"
-                       StartIcon="@Icons.Material.Filled.Add"
-                       Class="funkollection-secondary"
-                       FullWidth="true"
-                       @onclick="() => NavigateToNewPop()">New</MudButton>
-        </MudItem>
-    </MudGrid>
-    <MudTable Items="@PagedPops" Hover="true" Filter="FilterFunc" @bind-SelectedItem="selectedItem" Style="margin-top: 24px" id="scroll-section">
+    <MudTable Items="@PagedFavorites" Hover="true" Filter="FilterFunc" @bind-SelectedItem="selectedItem" Style="margin-top: 24px" id="scroll-section">
         <ToolBarContent>
-            <MudText Typo="Typo.h6">My Pops</MudText>
+            <MudText Typo="Typo.h6">My Favorites</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" OnInput="OnSearchChanged"></MudTextField>
         </ToolBarContent>
         <HeaderContent>
             <MudTh>Number</MudTh>
             <MudTh>Title</MudTh>
             <MudTh>Name</MudTh>
             <MudTh>Category</MudTh>
+            <MudTh>Actions</MudTh> <!-- Column for actions -->
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Number">@context.Number</MudTd>
@@ -54,7 +41,7 @@ else if (pops.Any())
             </MudTd>
         </RowTemplate>
         <PagerContent>
-            <MudTablePager />
+            <MudTablePager PageSizeOptions="new int[] { 5, 10, 20 }" @bind-Page="CurrentPage" />
         </PagerContent>
     </MudTable>
 
@@ -64,46 +51,37 @@ else if (pops.Any())
 }
 else
 {
-    <MudGrid Justify="Justify.Center">
-        <MudItem xs="12" class="d-flex justify-center">
-            <MudButton Variant="Variant.Filled"
-                       StartIcon="@Icons.Material.Filled.Add"
-                       Class="funkollection-secondary"
-                       FullWidth="true"
-                       @onclick="() => NavigateToNewPop()">New</MudButton>
-        </MudItem>
-    </MudGrid>
-
-    <p>No items found.</p>
+    <p>No favorites found.</p>
 }
 
 @code {
-    private IEnumerable<Pop> pops;
+    private IEnumerable<Pop> favorites;
     private string searchString = string.Empty;
     private Pop selectedItem;
-    private IEnumerable<Pop> filteredPops;
-    private IEnumerable<Pop> pagedPops;
+    private IEnumerable<Pop> filteredFavorites;
+    private IEnumerable<Pop> pagedFavorites;
 
     public int PageSize { get; set; } = 10; // Number of items per page
+    private int CurrentPage { get; set; } = 1;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadPopsAsync();
+        await LoadFavoritesAsync();
     }
 
-    private async Task LoadPopsAsync()
+    private async Task LoadFavoritesAsync()
     {
         var userId = await GetCurrentUserId();
         if (!string.IsNullOrEmpty(userId))
         {
-            pops = await PopService.GetPopsByUserAsync(userId);
-            filteredPops = pops;
-            UpdatePagedPops();
+            favorites = await FavoriteService.GetUserFavoritesAsync(userId);
+            filteredFavorites = favorites;
+            UpdatePagedFavorites();
         }
         else
         {
             // Handle case where user is not authenticated
-            Navigation.NavigateTo("/Account/Login");
+            Navigation.NavigateTo("/login");
         }
     }
 
@@ -121,47 +99,45 @@ else
         return string.Empty; // or handle unauthenticated state
     }
 
-    private IEnumerable<Pop> FilteredPops
+    private IEnumerable<Pop> FilteredFavorites
     {
         get
         {
             if (string.IsNullOrWhiteSpace(searchString))
             {
-                return pops;
+                return favorites;
             }
 
             var lowerCaseSearchString = searchString.ToLower();
 
-            return pops.Where(p =>
-                (p.Name != null && p.Name.ToLower().Contains(lowerCaseSearchString)) ||
-                (p.Title != null && p.Title.ToLower().Contains(lowerCaseSearchString)) ||
-                (p.Category != null && p.Category.ToLower().Contains(lowerCaseSearchString)) ||
-                (p.Number != null && p.Number.ToString().Contains(lowerCaseSearchString))
+            return favorites.Where(f =>
+                (f.Name != null && f.Name.ToLower().Contains(lowerCaseSearchString)) ||
+                (f.Title != null && f.Title.ToLower().Contains(lowerCaseSearchString)) ||
+                (f.Category != null && f.Category.ToLower().Contains(lowerCaseSearchString)) ||
+                (f.Number != null && f.Number.ToString().Contains(lowerCaseSearchString))
             );
         }
     }
 
-    private IEnumerable<Pop> PagedPops
+    private IEnumerable<Pop> PagedFavorites
     {
         get
         {
             var skip = (CurrentPage - 1) * PageSize;
-            return FilteredPops.Skip(skip).Take(PageSize);
+            return FilteredFavorites.Skip(skip).Take(PageSize);
         }
     }
 
-    private void UpdatePagedPops()
+    private void UpdatePagedFavorites()
     {
-        filteredPops = FilteredPops;
-        pagedPops = PagedPops;
+        filteredFavorites = FilteredFavorites;
+        pagedFavorites = PagedFavorites;
     }
-
-    private int CurrentPage { get; set; } = 1;
 
     private void OnPageChanged(int page)
     {
         CurrentPage = page;
-        UpdatePagedPops();
+        UpdatePagedFavorites();
     }
 
     private bool FilterFunc(Pop item)
@@ -178,15 +154,14 @@ else
                (item.Number != null && item.Number.ToString().Contains(lowerCaseSearchString));
     }
 
-    private void NavigateToDetails(int popID)
+    private void OnSearchChanged(string value)
     {
-        // Pop Details page
-        Navigation.NavigateTo($"/PopDetails/{popID}?returnUrl=/Pops");
+        searchString = value;
+        UpdatePagedFavorites();
     }
 
-    private void NavigateToNewPop()
+    private void NavigateToDetails(int popID)
     {
-        // Create Pop page
-        Navigation.NavigateTo($"/CreatePop");
+        Navigation.NavigateTo($"/PopDetails/{popID}?returnUrl=/Favorites");
     }
 }
