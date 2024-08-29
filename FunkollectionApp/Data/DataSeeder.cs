@@ -25,11 +25,11 @@ namespace FunkollectionApp.Data
             if (!dbContext.Pops.Any())
             {
                 dbContext.Pops.AddRange(
-                    new Pop {Number = 100, Title = "Wonka", Name = "Willy Wonka", Category = "Movies" },
-                    new Pop {Number = 101, Title = "South Park", Name = "Steven McTowelie"},
-                    new Pop {Number = 102, Title = "Overwatch 2", Name = "Reaper", Category = "Games" },
-                    new Pop {Number = 103, Title = "Stranger Things", Name = "Eleven", Category = "Television" },
-                    new Pop {Number = 104, Title = "Deadpool", Name = "Deadpool"}
+                    //new Pop {Number = 100, Title = "Wonka", Name = "Willy Wonka", Category = "Movies" },
+                    //new Pop {Number = 101, Title = "South Park", Name = "Steven McTowelie"},
+                    //new Pop {Number = 102, Title = "Overwatch 2", Name = "Reaper", Category = "Games" },
+                    //new Pop {Number = 103, Title = "Stranger Things", Name = "Eleven", Category = "Television" },
+                    //new Pop {Number = 104, Title = "Deadpool", Name = "Deadpool"}
                     );
                 dbContext.SaveChanges();
             }

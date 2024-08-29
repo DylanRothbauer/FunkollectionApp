@@ -23,5 +23,8 @@ namespace FunkollectionApp.Models
 
         // image
         public byte[]? ImageData { get; set; }
+
+        
+        public string UserId { get; set; }
     }
 }

@@ -47,7 +47,7 @@ else
             </CardHeaderContent>
             <CardHeaderActions>
                 <!-- <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" /> -->
-                <MudAvatar Class="funkollection-secondary">@pop.Number</MudAvatar>
+                <MudAvatar Class="funkollection-secondary" Size="Size.Large">@pop.Number</MudAvatar>
             </CardHeaderActions>
         </MudCardHeader>
         <MudCardMedia Image="@GetImageUrl()" Class="pop-details-img" />
@@ -56,11 +56,12 @@ else
             <MudText Typo="Typo.body2" Class="pop-card-text">@pop.Name</MudText>
         </MudCardContent>
         <MudCardActions Class="pop-card-actions">
-            <MudFab Class="funkollection-secondary" StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small" @onclick="NavigateToEditPop" />
+            <MudFab Class="funkollection-secondary" StartIcon="@Icons.Material.Filled.Edit" Size="Size.Large" @onclick="NavigateToEditPop" />
             <MudToggleIconButton @bind-Toggled="@favorite"
                                  Icon="@Icons.Material.Filled.FavoriteBorder" Color="@Color.Secondary" title=@(favorite ? "Favorite" : "Not Favorite")
-                                 ToggledIcon="@Icons.Material.Filled.Favorite" ToggledColor="@Color.Secondary" />
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" @onclick="OnDeleteClicked"></MudIconButton>
+                                 ToggledIcon="@Icons.Material.Filled.Favorite" ToggledColor="@Color.Secondary"
+                                 Size="Size.Large"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" @onclick="OnDeleteClicked" Size="Size.Large"></MudIconButton>
         </MudCardActions>
     </MudCard>
 

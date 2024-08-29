@@ -10,5 +10,8 @@ namespace FunkollectionApp.Services
         Task AddEntityAsync(Pop entity);
         Task UpdateEntityAsync(Pop entity);
         Task DeleteEntityAsync(int id);
+
+        // New method to get Pops by User ID
+        Task<IEnumerable<Pop>> GetPopsByUserAsync(string userId);
     }
 }

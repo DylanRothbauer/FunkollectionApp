@@ -1,12 +1,13 @@
 ﻿using FunkollectionApp.Data.Repositories;
 using FunkollectionApp.Models;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace FunkollectionApp.Services
 {
     public class PopService : IPopService
     {
-        private readonly IRepository<Pop> _popRepository;
-        public PopService(IRepository<Pop> repository)
+        private readonly IPopRepository _popRepository;
+        public PopService(IPopRepository repository)
         {
             _popRepository = repository;
         }
@@ -31,6 +32,12 @@ namespace FunkollectionApp.Services
         public async Task<Pop> GetEntityByIdAsync(int id)
         {
             return await _popRepository.GetByIdAsync(id);
+            //throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<Pop>> GetPopsByUserAsync(string userId)
+        {
+            return await _popRepository.GetPopsByUserAsync(userId);
             //throw new NotImplementedException();
         }
 

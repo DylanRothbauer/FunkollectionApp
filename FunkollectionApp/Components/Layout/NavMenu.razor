@@ -12,7 +12,11 @@
             <MudAppBar Elevation="1" Class="funkollection-primary">
                 <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
                 <MudSpacer />
-                <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
+                @* <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" /> *@
+                @if (initials != null)
+                {
+                    <MudAvatar Style="color:white; background-color: #8abf52">@initials</MudAvatar>
+                }
             </MudAppBar>
             <MudDrawer @bind-Open="@_open" Breakpoint="@_breakpoint" Elevation="1" Variant="@DrawerVariant.Responsive">
                 <MudDrawerHeader>
@@ -73,11 +77,26 @@
     private string? currentUrl;
     private bool _open = false;
     private Breakpoint _breakpoint = Breakpoint.Lg;
+    private string? initials;
 
-    protected override void OnInitialized()
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+    protected override async void OnInitialized()
     {
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
         NavigationManager.LocationChanged += OnLocationChanged;
+
+        // Get the authenticated user's information
+        var authState = await AuthenticationStateTask;
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            // Get the first letter of the user's name or email
+            var username = user.Identity.Name;
+            initials = !string.IsNullOrEmpty(username) ? username[0].ToString().ToUpper() : "?";
+        }
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)

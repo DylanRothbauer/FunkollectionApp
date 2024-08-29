@@ -156,3 +156,6 @@ h1:focus {
     color: white !important;
 }
 
+.pop-card-header, .pop-card-text {
+    padding-left: 50px !important;
+}
