@@ -81,7 +81,7 @@ else
         else
         {
             // Handle case where user is not authenticated
-            Navigation.NavigateTo("/Account/Login");
+            Navigation.NavigateTo("/login");
         }
     }
 
@@ -162,7 +162,6 @@ else
 
     private void NavigateToDetails(int popID)
     {
-        // Pop Details page
-        Navigation.NavigateTo($"/PopDetails/{popID}");
+        Navigation.NavigateTo($"/PopDetails/{popID}?returnUrl=/Favorites");
     }
 }

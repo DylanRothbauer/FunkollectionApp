@@ -71,7 +71,7 @@ else
         </YesButton>
     </MudMessageBox>
 
-    <MudButton Variant="Variant.Filled" Class="funkollection-secondary" @onclick="() => NavigateToCollection()">Back</MudButton>
+    <MudButton Variant="Variant.Filled" Class="funkollection-secondary" @onclick="() => NavigateBack()">Back</MudButton>
 }
 
 @code {
@@ -81,9 +81,14 @@ else
     private Pop pop;
     private bool favorite = false;
     private MudMessageBox _mudMessageBox;
+    private string returnUrl;
 
     protected override async Task OnInitializedAsync()
     {
+        var uri = new Uri(Navigation.Uri);
+        var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        returnUrl = queryParams.TryGetValue("returnUrl", out var url) ? url.ToString() : string.Empty;
+
         // Retrieve the Pop details
         pop = await PopService.GetEntityByIdAsync(popID);
 
@@ -113,6 +118,18 @@ else
     private void NavigateToCollection()
     {
         Navigation.NavigateTo("/Pops");
+    }
+
+    private void NavigateBack()
+    {
+        if (!string.IsNullOrEmpty(returnUrl))
+        {
+            Navigation.NavigateTo(returnUrl);
+        }
+        else
+        {
+            Navigation.NavigateTo("/Pops");
+        }
     }
 
     private async Task OnDeleteClicked()
