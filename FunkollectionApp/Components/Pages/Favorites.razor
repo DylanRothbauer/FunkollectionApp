@@ -1,0 +1,168 @@
+﻿@page "/Favorites"
+@rendermode InteractiveServer
+@using FunkollectionApp.Models
+@using FunkollectionApp.Services
+@using System.Security.Claims
+@inject IFavoriteService FavoriteService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using MudBlazor
+
+@if (favorites == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (favorites.Any())
+{
+    <MudTable Items="@PagedFavorites" Hover="true" Filter="FilterFunc" @bind-SelectedItem="selectedItem" Style="margin-top: 24px" id="scroll-section">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">My Favorites</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" OnInput="OnSearchChanged"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Number</MudTh>
+            <MudTh>Title</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Category</MudTh>
+            <MudTh>Actions</MudTh> <!-- Column for actions -->
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Number">@context.Number</MudTd>
+            <MudTd DataLabel="Title">@context.Title</MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Category">@context.Category</MudTd>
+            <MudTd>
+                <MudStack Row Class="d-flex justify-end">
+                    <MudButton Class="funkollection-secondary" Size="Size.Small" Variant="Variant.Filled" @onclick="() => NavigateToDetails(context.Id)">
+                        Details
+                    </MudButton>
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 5, 10, 20 }" @bind-Page="CurrentPage" />
+        </PagerContent>
+    </MudTable>
+
+    <MudScrollToTop>
+        <MudFab Class="funkollection-primary" StartIcon="@Icons.Material.Filled.ArrowCircleUp" />
+    </MudScrollToTop>
+}
+else
+{
+    <p>No favorites found.</p>
+}
+
+@code {
+    private IEnumerable<Pop> favorites;
+    private string searchString = string.Empty;
+    private Pop selectedItem;
+    private IEnumerable<Pop> filteredFavorites;
+    private IEnumerable<Pop> pagedFavorites;
+
+    public int PageSize { get; set; } = 10; // Number of items per page
+    private int CurrentPage { get; set; } = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFavoritesAsync();
+    }
+
+    private async Task LoadFavoritesAsync()
+    {
+        var userId = await GetCurrentUserId();
+        if (!string.IsNullOrEmpty(userId))
+        {
+            favorites = await FavoriteService.GetUserFavoritesAsync(userId);
+            filteredFavorites = favorites;
+            UpdatePagedFavorites();
+        }
+        else
+        {
+            // Handle case where user is not authenticated
+            Navigation.NavigateTo("/Account/Login");
+        }
+    }
+
+    private async Task<string> GetCurrentUserId()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
+
+        return string.Empty; // or handle unauthenticated state
+    }
+
+    private IEnumerable<Pop> FilteredFavorites
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+            {
+                return favorites;
+            }
+
+            var lowerCaseSearchString = searchString.ToLower();
+
+            return favorites.Where(f =>
+                (f.Name != null && f.Name.ToLower().Contains(lowerCaseSearchString)) ||
+                (f.Title != null && f.Title.ToLower().Contains(lowerCaseSearchString)) ||
+                (f.Category != null && f.Category.ToLower().Contains(lowerCaseSearchString)) ||
+                (f.Number != null && f.Number.ToString().Contains(lowerCaseSearchString))
+            );
+        }
+    }
+
+    private IEnumerable<Pop> PagedFavorites
+    {
+        get
+        {
+            var skip = (CurrentPage - 1) * PageSize;
+            return FilteredFavorites.Skip(skip).Take(PageSize);
+        }
+    }
+
+    private void UpdatePagedFavorites()
+    {
+        filteredFavorites = FilteredFavorites;
+        pagedFavorites = PagedFavorites;
+    }
+
+    private void OnPageChanged(int page)
+    {
+        CurrentPage = page;
+        UpdatePagedFavorites();
+    }
+
+    private bool FilterFunc(Pop item)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+        {
+            return true;
+        }
+
+        var lowerCaseSearchString = searchString.ToLower();
+        return (item.Name != null && item.Name.ToLower().Contains(lowerCaseSearchString)) ||
+               (item.Title != null && item.Title.ToLower().Contains(lowerCaseSearchString)) ||
+               (item.Category != null && item.Category.ToLower().Contains(lowerCaseSearchString)) ||
+               (item.Number != null && item.Number.ToString().Contains(lowerCaseSearchString));
+    }
+
+    private void OnSearchChanged(string value)
+    {
+        searchString = value;
+        UpdatePagedFavorites();
+    }
+
+    private void NavigateToDetails(int popID)
+    {
+        // Pop Details page
+        Navigation.NavigateTo($"/PopDetails/{popID}");
+    }
+}
