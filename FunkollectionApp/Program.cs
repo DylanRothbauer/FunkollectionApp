@@ -42,6 +42,7 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 
 builder.Services.AddScoped<IRepository<Pop>, PopRepository>();
 builder.Services.AddScoped<IPopService, PopService>();
+builder.Services.AddScoped<IPopRepository, PopRepository>();
 builder.Services.AddMudServices();
 
 builder.Services.AddMudServices(options => { options.PopoverOptions.CheckForPopoverProvider = false; });

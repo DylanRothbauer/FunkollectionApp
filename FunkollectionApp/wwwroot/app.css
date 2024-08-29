@@ -147,4 +147,15 @@ h1:focus {
     }
 }
 
+.nav-link {
+    color: black !important;
+}
 
+.nav-link.active {
+    background-color: #8abf52 !important;
+    color: white !important;
+}
+
+.pop-card-header, .pop-card-text {
+    padding-left: 50px !important;
+}

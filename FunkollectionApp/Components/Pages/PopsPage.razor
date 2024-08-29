@@ -2,12 +2,16 @@
 @rendermode InteractiveServer
 @inject IPopService PopService
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @using System.Threading.Tasks
 @using System.Collections.Generic
 @using FunkollectionApp.Models
 @using FunkollectionApp.Services
 @using MudBlazor
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+
 
 @if (pops == null)
 {
@@ -17,8 +21,8 @@ else if (pops.Any())
 {
     <MudGrid Justify="Justify.Center">
         <MudItem xs="12" class="d-flex justify-center">
-            <MudButton Variant="Variant.Filled" 
-                       StartIcon="@Icons.Material.Filled.Add" 
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Material.Filled.Add"
                        Class="funkollection-secondary"
                        FullWidth="true"
                        @onclick="() => NavigateToNewPop()">New</MudButton>
@@ -43,7 +47,7 @@ else if (pops.Any())
             <MudTd DataLabel="Category">@context.Category</MudTd>
             <MudTd>
                 <MudStack Row Class="d-flex justify-end">
-                    <MudButton Class="funkollection-secondary" Size="Size.Small" Variant="Variant.Filled"  @onclick="() => NavigateToDetails(context.Id)">
+                    <MudButton Class="funkollection-secondary" Size="Size.Small" Variant="Variant.Filled" @onclick="() => NavigateToDetails(context.Id)">
                         Details
                     </MudButton>
                 </MudStack>
@@ -60,6 +64,16 @@ else if (pops.Any())
 }
 else
 {
+    <MudGrid Justify="Justify.Center">
+        <MudItem xs="12" class="d-flex justify-center">
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       Class="funkollection-secondary"
+                       FullWidth="true"
+                       @onclick="() => NavigateToNewPop()">New</MudButton>
+        </MudItem>
+    </MudGrid>
+
     <p>No items found.</p>
 }
 
@@ -74,9 +88,37 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        pops = await PopService.GetAllEntitiesAsync();
-        filteredPops = pops;
-        UpdatePagedPops();
+        await LoadPopsAsync();
+    }
+
+    private async Task LoadPopsAsync()
+    {
+        var userId = await GetCurrentUserId();
+        if (!string.IsNullOrEmpty(userId))
+        {
+            pops = await PopService.GetPopsByUserAsync(userId);
+            filteredPops = pops;
+            UpdatePagedPops();
+        }
+        else
+        {
+            // Handle case where user is not authenticated
+            Navigation.NavigateTo("/Account/Login");
+        }
+    }
+
+    private async Task<string> GetCurrentUserId()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
+
+        return string.Empty; // or handle unauthenticated state
     }
 
     private IEnumerable<Pop> FilteredPops

@@ -1,6 +1,44 @@
 ﻿@page "/"
-<PageTitle>Home</PageTitle>
+@rendermode InteractiveServer
 
-<h1>Hello, world!</h1>
+<AuthorizeView>
+    <Authorized>
+        <h1>Hello, world!</h1>
+        <h3>Welcome to your new app.</h3>
+    </Authorized>
 
-Welcome to your new app.
+    <NotAuthorized>
+        <Welcome />
+    </NotAuthorized>
+
+</AuthorizeView>
+
+@* @if(loggedIn)
+{
+    <h1>Hello, world!</h1>
+
+    <h3>Welcome to your new app.</h3>
+}
+else
+{
+    <Welcome/>
+} *@
+
+
+
+@code{
+
+    // [CascadingParameter]
+    // private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    // private bool loggedIn = false;
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var authenticationState = await AuthenticationStateTask;
+
+    //     if (authenticationState?.User?.Identity is not null && authenticationState.User.Identity.IsAuthenticated)
+    //     {
+    //         loggedIn = true;
+    //     }
+    // }
+}
