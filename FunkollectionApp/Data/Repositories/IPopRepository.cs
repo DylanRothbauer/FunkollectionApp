@@ -7,5 +7,6 @@ namespace FunkollectionApp.Data.Repositories
     public interface IPopRepository : IRepository<Pop>
     {
         Task<IEnumerable<Pop>> GetPopsByUserAsync(string userId); // New method to get pops by user ID
+        Task<Dictionary<string, int>> GetUserPopsByCategoryAsync(string userId);
     }
 }

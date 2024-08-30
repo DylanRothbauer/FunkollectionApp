@@ -13,5 +13,7 @@ namespace FunkollectionApp.Services
 
         // New method to get Pops by User ID
         Task<IEnumerable<Pop>> GetPopsByUserAsync(string userId);
+
+        Task<Dictionary<string, int>> GetUserPopsByCategoryAsync(string userId);
     }
 }

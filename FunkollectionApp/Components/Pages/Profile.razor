@@ -1,8 +1,66 @@
 ﻿@page "/Profile"
+@using FunkollectionApp.Services
 @rendermode InteractiveServer
+@inject IPopService PopService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <h3>Profile</h3>
 
-@code {
+@if (loading)
+{
+    <p>Loading...</p>
+}
+else if (Series.Count > 0)
+{
+    <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350px">
+        <!-- Optional custom graphics -->
+    </MudChart>
+}
+else
+{
+    <p>No data available to display.</p>
+}
 
+@code {
+    private List<ChartSeries> Series = new List<ChartSeries>();
+    private string[] XAxisLabels;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userId = await GetCurrentUserId();
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var userPopsByCategory = await PopService.GetUserPopsByCategoryAsync(userId);
+            if (userPopsByCategory != null)
+            {
+                PopulateChart(userPopsByCategory);
+            }
+        }
+        loading = false;
+    }
+
+    private async Task<string> GetCurrentUserId()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
+
+        return string.Empty;
+    }
+
+    private void PopulateChart(Dictionary<string, int> userPopsByCategory)
+    {
+        Series.Clear();
+        var data = userPopsByCategory.Values.Select(v => (double)v).ToArray();
+        var labels = userPopsByCategory.Keys.ToArray();
+
+        Series.Add(new ChartSeries() { Name = "My Collection", Data = data });
+        XAxisLabels = labels;
+    }
 }

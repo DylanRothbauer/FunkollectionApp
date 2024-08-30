@@ -1,6 +1,7 @@
 ﻿using FunkollectionApp.Data.Repositories;
 using FunkollectionApp.Models;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.EntityFrameworkCore;
 
 namespace FunkollectionApp.Services
 {
@@ -46,5 +47,11 @@ namespace FunkollectionApp.Services
             await _popRepository.UpdateAsync(entity);
             //throw new NotImplementedException();
         }
+
+        public async Task<Dictionary<string, int>> GetUserPopsByCategoryAsync(string userId)
+        {
+            return await _popRepository.GetUserPopsByCategoryAsync(userId);
+        }
+
     }
 }

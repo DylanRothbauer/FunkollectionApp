@@ -23,5 +23,18 @@ namespace FunkollectionApp.Data.Repositories
                                  .Where(pop => pop.UserId == userId)
                                  .ToListAsync();
         }
+
+        public async Task<Dictionary<string, int>> GetUserPopsByCategoryAsync(string userId)
+        {
+            // Fetching Pops that belong to the specified user and grouping by category
+            var pops = await _context.Set<Pop>()
+                                     .Where(p => p.UserId == userId)
+                                     .ToListAsync();
+
+            var popsByCategory = pops.GroupBy(p => p.Category)
+                                     .ToDictionary(g => g.Key, g => g.Count());
+
+            return popsByCategory;
+        }
     }
 }
