@@ -113,7 +113,7 @@ h1:focus {
     vertical-align: middle;
     width: 100%; /* Make it responsive */
     max-width: 400px; /* Limit the size for larger screens */
-    top: 20%; /* Use percentage for responsiveness */
+    top: 15%; /* Use percentage for responsiveness */
     left: 30%;
     transform: translateX(-50%); /* Center horizontally */
 }
@@ -125,7 +125,7 @@ h1:focus {
     height: 20px;
     background: red;
     border-radius: 40px;
-    top: 42%; /* Use percentage for responsiveness */
+    top: 36%; /* Use percentage for responsiveness */
     left: 30%;
     transform: translateX(-50%); /* Center horizontally */
     color: white;
@@ -145,6 +145,21 @@ h1:focus {
         top: 30%;
         left: 21%;
     }
+
+    .mud-typography, .mud-nav-link-text.h4 {
+        font-size: var(--mud-typography-h6-size) !important;
+        font-family: var(--mud-typography-h6-family) !important;
+        font-weight: var(--mud-typography-h6-weight) !important;
+        line-height: var(--mud-typography-h6-lineheight) !important;
+        letter-spacing: var(--mud-typography-h6-letterspacing) !important;
+        text-transform: var(--mud-typography-h6-text-transform) !important;
+    }
+
+    .pop-card-header {
+        padding-left: 50px !important;
+    }
+
+    }
 }
 
 .nav-link {
@@ -156,6 +171,3 @@ h1:focus {
     color: white !important;
 }
 
-.pop-card-header, .pop-card-text {
-    padding-left: 50px !important;
-}
