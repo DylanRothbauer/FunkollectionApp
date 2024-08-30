@@ -10,7 +10,10 @@
                 <MudSpacer />
                 @if (initials != null)
                 {
-                    <MudAvatar Style="color:white; background-color: #8abf52">@initials</MudAvatar>
+                    <MudButton Href="/Profile">
+                        <MudAvatar Style="color:white; background-color: #8abf52">@initials</MudAvatar>
+                    </MudButton>
+                    
                 }
             </MudAppBar>
             <MudDrawer @bind-Open="@_open" Breakpoint="@_breakpoint" Elevation="1" Variant="DrawerVariant.Responsive">
