@@ -37,7 +37,7 @@ namespace FunkollectionApp.Data
 
                 var user = new ApplicationUser
                 {
-                    UserName = "Email@email.com",
+                    UserName = "admin",
                     NormalizedUserName = "email@email.com",
                     Email = "Email@email.com",
                     NormalizedEmail = "email@email.com",
