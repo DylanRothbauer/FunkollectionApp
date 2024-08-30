@@ -2,6 +2,7 @@
 @using FunkollectionApp.Services
 @rendermode InteractiveServer
 @inject IPopService PopService
+@inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <h3>Profile</h3>
@@ -28,6 +29,11 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadPage();
+    }
+
+    private async Task LoadPage()
+    {
         var userId = await GetCurrentUserId();
         if (!string.IsNullOrEmpty(userId))
         {
@@ -36,6 +42,9 @@ else
             {
                 PopulateChart(userPopsByCategory);
             }
+        } else
+        {
+            Navigation.NavigateTo("/Account/Login");
         }
         loading = false;
     }
