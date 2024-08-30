@@ -39,6 +39,7 @@ else if (pops.Any())
             <MudTh>Title</MudTh>
             <MudTh>Name</MudTh>
             <MudTh>Category</MudTh>
+            <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Number">@context.Number</MudTd>
@@ -46,7 +47,7 @@ else if (pops.Any())
             <MudTd DataLabel="Name">@context.Name</MudTd>
             <MudTd DataLabel="Category">@context.Category</MudTd>
             <MudTd>
-                <MudStack Row Class="d-flex justify-end">
+                <MudStack Row Class="d-flex justify-left">
                     <MudButton Class="funkollection-secondary" Size="Size.Small" Variant="Variant.Filled" @onclick="() => NavigateToDetails(context.Id)">
                         Details
                     </MudButton>
