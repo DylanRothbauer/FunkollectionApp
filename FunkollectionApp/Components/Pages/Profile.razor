@@ -5,22 +5,62 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<h3>Profile</h3>
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-5">
+    <MudGrid Gutter="true">
+        <!-- Profile Info Section -->
+        <MudItem xs="12" md="4">
+            <MudCard>
+                <MudCardMedia Image="images/image-placeholder.jpg" Alt="Profile Picture" />
+                <MudCardContent>
+                    <MudText Typo="Typo.h6">User Name</MudText>
+                    <MudText Typo="Typo.subtitle1">user@example.com</MudText>
+                    <MudDivider Class="my-2" />
+                    <MudText Typo="Typo.body1">Bio: Avid Funko Pop collector and enthusiast. Loves finding rare and exclusive Pops to add to the collection.</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
 
-@if (loading)
-{
-    <p>Loading...</p>
-}
-else if (Series.Count > 0)
-{
-    <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350px">
-        <!-- Optional custom graphics -->
-    </MudChart>
-}
-else
-{
-    <p>No data available to display.</p>
-}
+        <!-- User Stats Chart Section -->
+        <MudItem xs="12" md="8">
+            <MudPaper Class="p-3">
+                <MudText Typo="Typo.h6" Class="mb-2">My Funko Pop Collection by Category</MudText>
+                @if (loading)
+                {
+                    <MudProgressCircular Indeterminate="true" />
+                }
+                else if (Series.Count > 0)
+                {
+                    <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350px" />
+                }
+                else
+                {
+                    <MudText>No data available to display.</MudText>
+                }
+            </MudPaper>
+        </MudItem>
+
+        <!-- Favorite Pops Section -->
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardContent>
+                    <MudText Typo="Typo.h6" Class="mb-2">Favorite Pops</MudText>
+                    <MudList T="string">
+                        <MudListItem>
+                            <MudText Typo="Typo.subtitle1">Pop Name 1</MudText>
+                        </MudListItem>
+                        <MudListItem>
+                            <MudText Typo="Typo.subtitle1">Pop Name 2</MudText>
+                        </MudListItem>
+                        <MudListItem>
+                            <MudText Typo="Typo.subtitle1">Pop Name 3</MudText>
+                        </MudListItem>
+                        <!-- Replace with dynamic data -->
+                    </MudList>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
 @code {
     private List<ChartSeries> Series = new List<ChartSeries>();
@@ -42,7 +82,8 @@ else
             {
                 PopulateChart(userPopsByCategory);
             }
-        } else
+        }
+        else
         {
             Navigation.NavigateTo("/Account/Login");
         }
